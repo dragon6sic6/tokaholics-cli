@@ -37,5 +37,21 @@ for (const [name, fn] of checks) {
   else console.log(`✓ ${name}`);
 }
 
+// Group Sprint lifecycle — create → list → detail → leave (cleans up after).
+try {
+  const { data: sid, error: e1 } = await c.rpc('create_sprint', { p_name: 'smoke sprint', p_goal: 1000000, p_days: 7 });
+  if (e1) throw e1;
+  const { data: mine, error: e2 } = await c.rpc('my_sprints');
+  if (e2) throw e2;
+  if (!mine.some(s => s.id === sid)) throw new Error('created sprint not in my_sprints');
+  const { error: e3 } = await c.rpc('sprint_detail', { p_id: sid });
+  if (e3) throw e3;
+  const { error: e4 } = await c.rpc('leave_sprint', { p_id: sid });
+  if (e4) throw e4;
+  console.log('✓ sprint lifecycle (create/list/detail/leave)');
+} catch (e) {
+  console.log(`✗ sprint lifecycle — ${e.message}`); failed++;
+}
+
 console.log(failed ? `\n${failed} RPC check(s) FAILED` : '\nAll RPC checks passed ✓');
 process.exit(failed ? 1 : 0);
