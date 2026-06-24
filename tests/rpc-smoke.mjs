@@ -20,9 +20,10 @@ const { error: authErr } = await c.auth.signInWithPassword({ email: EMAIL, passw
 if (authErr) { console.error('AUTH FAIL:', authErr.message); process.exit(1); }
 
 const checks = [
-  ['leaderboard(friends/today)', () => c.rpc('leaderboard', { p_days: 1, p_scope: 'friends' })],
+  ['leaderboard(friends/today,tz)', () => c.rpc('leaderboard', { p_days: 1, p_scope: 'friends', p_tz: 'Pacific/Honolulu' })],
   ['leaderboard(global/week)',   () => c.rpc('leaderboard', { p_days: 7, p_scope: 'global' })],
-  ['current_streak',             () => c.rpc('current_streak')],
+  ['current_streak(tz)',         () => c.rpc('current_streak', { p_tz: 'Pacific/Honolulu' })],
+  ['current_streak(default)',    () => c.rpc('current_streak')],
   ['my_stats',                   () => c.rpc('my_stats')],
   ['create_pairing_code',        () => c.rpc('create_pairing_code')],
 ];
