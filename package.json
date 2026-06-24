@@ -1,0 +1,38 @@
+{
+  "name": "tokaholics",
+  "version": "0.1.0",
+  "description": "Track your Claude Code token burn and climb the leaderboard with your friends.",
+  "type": "module",
+  "bin": {
+    "tokaholics": "bin/tokaholics.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "tokens",
+    "usage",
+    "leaderboard",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "commander": "^12.1.0"
+  },
+  "scripts": {
+    "start": "node bin/tokaholics.js",
+    "test": "node tests/rpc-smoke.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/tokaholics"
+  },
+  "license": "MIT"
+}
