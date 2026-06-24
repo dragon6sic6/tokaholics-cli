@@ -24,6 +24,8 @@ const checks = [
   ['leaderboard(global/week)',   () => c.rpc('leaderboard', { p_days: 7, p_scope: 'global' })],
   ['current_streak(tz)',         () => c.rpc('current_streak', { p_tz: 'Pacific/Honolulu' })],
   ['current_streak(default)',    () => c.rpc('current_streak')],
+  ['league_standings(this week)',() => c.rpc('league_standings', { p_tz: 'Europe/Stockholm', p_offset: 0 })],
+  ['league_standings(last week)',() => c.rpc('league_standings', { p_tz: 'Europe/Stockholm', p_offset: 1 })],
   ['my_stats',                   () => c.rpc('my_stats')],
   ['create_pairing_code',        () => c.rpc('create_pairing_code')],
 ];
