@@ -35,11 +35,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dragon6sic6/tokaholics.git"
+    "url": "git+https://github.com/dragon6sic6/tokaholics-cli.git"
   },
   "homepage": "https://tokaholics.pro",
   "bugs": {
-    "url": "https://github.com/dragon6sic6/tokaholics/issues"
+    "url": "https://github.com/dragon6sic6/tokaholics-cli/issues"
   },
   "author": "Mathias Karlsson",
   "license": "MIT"

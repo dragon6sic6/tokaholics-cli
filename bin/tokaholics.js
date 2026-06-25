@@ -19,7 +19,7 @@ program
   .version('0.1.0');
 
 const fmt = (n) => (n / 1e6).toFixed(1) + 'M';
-const REPO = 'https://github.com/dragon6sic6/tokaholics';
+const REPO = 'https://github.com/dragon6sic6/tokaholics-cli';
 
 // Yes/no prompt. Non-interactive (no TTY) resolves to the default so piped/CI
 // runs never hang. Enter accepts the default.
