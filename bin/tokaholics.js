@@ -4,6 +4,7 @@
 
 import { Command } from 'commander';
 import { hostname, platform } from 'node:os';
+import { createInterface } from 'node:readline';
 import { aggregateUsage, aggregateByProject, daysAgo, today } from '../src/parse.js';
 import { readConfig, writeConfig, setSecret, clearSecret } from '../src/store.js';
 import { redeemPairing, pushUsage } from '../src/api.js';
@@ -18,6 +19,22 @@ program
   .version('0.1.0');
 
 const fmt = (n) => (n / 1e6).toFixed(1) + 'M';
+const REPO = 'https://github.com/dragon6sic6/tokaholics';
+
+// Yes/no prompt. Non-interactive (no TTY) resolves to the default so piped/CI
+// runs never hang. Enter accepts the default.
+function confirm(question, def = true) {
+  if (!process.stdin.isTTY) return Promise.resolve(def);
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const hint = def ? '[Y/n]' : '[y/N]';
+  return new Promise((resolve) => {
+    rl.question(`${question} ${hint} `, (a) => {
+      rl.close();
+      const s = a.trim().toLowerCase();
+      resolve(s === '' ? def : (s === 'y' || s === 'yes'));
+    });
+  });
+}
 
 // ── login / pairing ──────────────────────────────────────────────────────────
 program
@@ -43,10 +60,13 @@ program
 
 program
   .command('setup')
-  .description('One command: pair + full sync + background agent + instant hook')
-  .argument('<code>', '8-char pairing code from the iOS app')
+  .description('Pair + backfill + background sync. Add --hook for instant post-session sync.')
+  .argument('<code>', 'pairing code from the iOS app (You → Connect a computer)')
   .option('--url <url>', 'Supabase project URL (first-time setup only)')
   .option('--anon <key>', 'Supabase anon key (first-time setup only)')
+  .option('--hook', 'Also add a Claude Code Stop hook for instant sync (edits ~/.claude/settings.json)')
+  .option('--no-agent', 'Skip the background sync agent')
+  .option('-y, --yes', 'Skip the confirmation prompt (for non-interactive use)')
   .action(async (code, opts) => {
     if (opts.url || opts.anon) {
       await writeConfig({
@@ -54,6 +74,31 @@ program
         ...(opts.anon ? { supabaseAnon: opts.anon } : {}),
       });
     }
+
+    const wantAgent = opts.agent !== false;   // commander sets agent=false on --no-agent
+    const wantHook = !!opts.hook;
+
+    // Transparency: say exactly what we read and what we'll change, then consent.
+    console.log('');
+    console.log('Tokaholics measures token COUNTS only. It reads ~/.claude logs for usage');
+    console.log('numbers (tokens, model, timestamp) and never your prompts, code, file');
+    console.log(`names, or project names. Source: ${REPO}`);
+    console.log('');
+    console.log('This will:');
+    console.log('  • pair this Mac with your account (device token → macOS Keychain)');
+    console.log('  • read ~/.claude/projects/**/*.jsonl and upload daily token totals');
+    if (wantAgent) console.log('  • install a background sync agent (launchd, every 5 min)');
+    if (wantHook)  console.log('  • add a Stop hook to ~/.claude/settings.json (instant sync)');
+    if (!wantHook) console.log('  (no Claude-hook — add later with --hook or `tokaholics install-hook`)');
+    console.log('');
+    console.log(`Undo anytime:  tokaholics logout${wantHook ? '  +  tokaholics uninstall-hook' : ''}`);
+    console.log('');
+
+    if (!opts.yes && !(await confirm('Continue?', true))) {
+      console.log('Aborted — nothing was changed.');
+      return;
+    }
+
     const name = hostname();
     const { device_id, device_token, user_id, username } = await redeemPairing(code, name, platform());
     await setSecret(device_token);
@@ -68,10 +113,21 @@ program
         s + r.input_tokens + r.output_tokens + r.cache_write_tokens + r.cache_read_tokens, 0);
       console.log(`✓ Backfilled ${n} day/model rows (${fmt(tot)} tokens) across ${changedDays} days.`);
     }
-    await installAgent({ intervalSec: 300 });
-    console.log('✓ Background sync running (every 5 min).');
-    await installHook();
-    console.log('✓ Instant sync after every Claude Code session.');
+
+    if (wantAgent) {
+      await installAgent({ intervalSec: 300 });
+      console.log('✓ Background sync running (every 5 min).');
+    } else {
+      console.log('• Background agent skipped — run `tokaholics start` later, or `tokaholics sync` by hand.');
+    }
+
+    if (wantHook) {
+      await installHook();
+      console.log('✓ Instant sync after every Claude Code session.');
+    } else {
+      console.log('• Instant Claude-hook not installed — run `tokaholics install-hook` if you want it.');
+    }
+
     console.log('\n🔥 You are live on Tokaholics. Open the app and watch your burn.');
   });
 
@@ -184,4 +240,7 @@ program
     console.log('Supabase:  ', cfg.supabaseUrl || '(default/env)');
   });
 
-program.parseAsync();
+program.parseAsync().catch((e) => {
+  console.error(`✗ ${e?.message || e}`);
+  process.exit(1);
+});

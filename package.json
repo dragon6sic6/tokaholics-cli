@@ -1,7 +1,7 @@
 {
   "name": "tokaholics",
-  "version": "0.1.0",
-  "description": "Track your Claude Code token burn and climb the leaderboard with your friends.",
+  "version": "0.2.0",
+  "description": "Track your Claude Code token burn and climb the leaderboard with your friends. Reads usage counts only — never your prompts or code.",
   "type": "module",
   "bin": {
     "tokaholics": "bin/tokaholics.js"
@@ -9,7 +9,8 @@
   "files": [
     "bin/",
     "src/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "claude",
@@ -23,8 +24,10 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
     "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.45.0"
   },
   "scripts": {
     "start": "node bin/tokaholics.js",
@@ -32,7 +35,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/tokaholics"
+    "url": "git+https://github.com/dragon6sic6/tokaholics.git"
   },
+  "homepage": "https://tokaholics.pro",
+  "bugs": {
+    "url": "https://github.com/dragon6sic6/tokaholics/issues"
+  },
+  "author": "Mathias Karlsson",
   "license": "MIT"
 }
