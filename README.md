@@ -25,7 +25,7 @@ Nothing is installed silently, and everything is reversible (see
 ## Get started
 
 ```bash
-npx tokaholics setup <code>            # code from the iOS app: You → Connect a computer
+npx tokaholics setup <code>            # code from the app: You → Connect a computer
 npx tokaholics setup <code> --hook     # …and also sync instantly after each session
 ```
 
