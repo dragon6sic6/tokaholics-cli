@@ -5,6 +5,9 @@
 import { Command } from 'commander';
 import { hostname, platform } from 'node:os';
 import { createInterface } from 'node:readline';
+import { readFileSync } from 'node:fs';
+
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 import { aggregateUsage, aggregateByProject, daysAgo, today } from '../src/parse.js';
 import { readConfig, writeConfig, setSecret, clearSecret } from '../src/store.js';
 import { redeemPairing, pushUsage } from '../src/api.js';
@@ -16,7 +19,7 @@ const program = new Command();
 program
   .name('tokaholics')
   .description('Track your Claude Code burn. Climb the leaderboard with your friends.')
-  .version('0.1.0');
+  .version(pkg.version);
 
 const fmt = (n) => (n / 1e6).toFixed(1) + 'M';
 const REPO = 'https://github.com/dragon6sic6/tokaholics-cli';
