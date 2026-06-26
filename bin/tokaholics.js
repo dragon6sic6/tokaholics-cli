@@ -133,12 +133,13 @@ program
 
 program
   .command('logout')
-  .description('Unpair this machine')
+  .description('Unpair this machine and remove everything (agent + hook)')
   .action(async () => {
     await clearSecret();
     await writeConfig({ deviceId: null, userId: null });
     await uninstallAgent();
-    console.log('✓ Logged out and background sync removed.');
+    await uninstallHook();
+    console.log('✓ Logged out. Background sync, the Claude hook, and the device token are all removed.');
   });
 
 // ── sync ──────────────────────────────────────────────────────────────────────
